@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <title>Spring Security Example</title>
+</head>
+<body>
+<h1>Hello!
+    You have been logged in as <b><span sec:authentication="name"></span></b></h1>
+
+<form>
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+    <a th:href="@{/users}">View users</a>
+</form>
+
+</body>
+</html>
