@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <title>Add user</title>
@@ -16,6 +16,7 @@
 <h2>Add user</h2>
 
 <form th:action="@{/users/add}" method="post" th:object="${user}">
+    <h1>Logged as <b><span sec:authentication="name"></span></b></h1>
 
     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 

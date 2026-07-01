@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
   <meta charset="UTF-8">
   <title>Edit user</title>
@@ -14,6 +14,8 @@
 </head>
 <body>
 <h1>Edit User <span th:text="${user.id}"></span></h1>
+
+<h1>Logged as <b><span sec:authentication="name"></span></b></h1>
 
 <form th:action="@{/users/edit/{id}(id=${user.id})}" method="post" th:object="${user}">
 

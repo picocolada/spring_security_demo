@@ -16,29 +16,29 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig {
+
     private final SuccessUserHandler successUserHandler;
 
     public WebSecurityConfig(SuccessUserHandler successUserHandler) {
         this.successUserHandler = successUserHandler;
     }
 
-    // /add, delete, edit, edit/* - admin
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/index").permitAll()
-                        .requestMatchers("/users/add").hasRole("ADMIN")
-                        .requestMatchers("/users/edit").hasRole("ADMIN")
-                        .requestMatchers("/users/delete").hasRole("ADMIN")
-                        .requestMatchers("/users/edit/*").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/users/*").hasRole("ADMIN")
+                        .requestMatchers("/", "/login", "/index").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/users/add").hasRole("ADMIN")
+                        .requestMatchers("/users/edit/**").hasRole("ADMIN")
+                        .requestMatchers("/users/delete/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/users/**").hasRole("ADMIN")
 
-                        .requestMatchers(HttpMethod.GET, "users").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.GET, "/users").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
 
-                    .anyRequest().authenticated()
+                        .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                     .successHandler(successUserHandler)
@@ -49,6 +49,8 @@ public class WebSecurityConfig {
     }
 
     // аутентификация inMemory
+
+    //создать тестового админа и юзера
     @Bean
     public UserDetailsService userDetailsService() {
         UserDetails user =
@@ -73,6 +75,9 @@ public class WebSecurityConfig {
     @Bean
     public UserDetailsService userDetailsService() {
         return new UserDetailsService() {
+
+        loadUserbyUsername(email) - отдельный сервис
+
         }
     }*/
 
