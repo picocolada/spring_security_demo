@@ -17,6 +17,8 @@ public class UserController {
         this.userService = userService;
     }
 
+    //юзер должен видеть инфо только о себе
+
     @GetMapping("/user")
     public String userPage(Authentication authentication, Model model) {
         model.addAttribute("user", authentication.getPrincipal());

@@ -9,6 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+
 @Controller
 public class AdminController {
     private final UserService userService;
@@ -17,9 +18,11 @@ public class AdminController {
         this.userService = userService;
     }
 
+
     @GetMapping("/admin")
     public String adminPage(Authentication authentication, Model model) {
         model.addAttribute("user", authentication.getPrincipal());
+        model.addAttribute("users", userService.listUsers());
         return "admin";
     }
 
@@ -43,9 +46,15 @@ public class AdminController {
                     "User with email " + user.getEmail() + " already exists");
         }
 
+        if (userService.existsByUsername(user.getUsername())) {
+            bindingResult.rejectValue("username", "error.user",
+                    "User with username " + user.getUsername() + " already exists");
+        }
+
         if (bindingResult.hasErrors()) {
             return "addition-page";
         }
+
 
         userService.add(user);
         return "redirect:/users";
@@ -66,12 +75,16 @@ public class AdminController {
     }
 
 
-    // добавить изменение пароля и подхватывание пароля из базы
     @PostMapping("/users/edit/{id}")
     public String updateUser(@PathVariable Long id,
                              @Valid @ModelAttribute User user,
                              BindingResult bindingResult,
                              Model model) {
+        User existingUser = userService.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setUsername(existingUser.getUsername());
+
         User userWithSameEmail = userService.findByEmail(user.getEmail());
         if (userWithSameEmail != null && !userWithSameEmail.getId().equals(id)) {
             bindingResult.rejectValue("email", "duplicate",

@@ -41,17 +41,17 @@ public class User implements UserDetails {
     private String username;
 
     @Column(name = "password", nullable = false, length = 255)
-    @Size(min = 2, max = 50, message = "Password must be between 2 and 50 characters")
-    @NotBlank(message = "Please provide your password")
     private String password;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles = new HashSet<>();
+
+
 
     public User() {}
 
@@ -119,7 +119,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email;
+        return username;
     }
 
     @Override

@@ -45,6 +45,15 @@
 
   <br><br>
 
+  <label>
+    New Password:
+    <input type="password" th:field="*{password}" placeholder="Leave empty to keep current password">
+    <span class="info">Leave empty to keep the current password</span>
+    <span th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="error"></span>
+  </label>
+
+  <br><br>
+
   <button type="submit">Save</button>
 
   <br><br>

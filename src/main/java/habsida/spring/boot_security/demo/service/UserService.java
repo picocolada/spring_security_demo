@@ -7,10 +7,13 @@ import java.util.Optional;
 
 public interface UserService {
     void add(User user);
-    boolean existsByEmail(String email);
     void delete(Long id);
     User findByEmail(String email);
     List<User> listUsers();
     Optional<User> findById(Long id);
+    Optional<User> findByUsername(String username);
     void update(Long id, User user);
+
+    boolean existsByEmail(String email);
+    boolean existsByUsername(String username);
 }
