@@ -28,15 +28,15 @@ public class DataInitializer {
     @PostConstruct
     @Transactional
     public void createTestAdminUser() {
-        Role roleUser = roleRepository.findByRole("USER")
+        Role roleUser = roleRepository.findByRole("ROLE_USER")
                 .orElseGet(() -> {
-                    Role newRole = new Role("USER");
+                    Role newRole = new Role("ROLE_USER");
                     return roleRepository.save(newRole);
                 });
 
-        Role roleAdmin = roleRepository.findByRole("ADMIN")
+        Role roleAdmin = roleRepository.findByRole("ROLE_ADMIN")
                 .orElseGet(() -> {
-                    Role newRole = new Role("ADMIN");
+                    Role newRole = new Role("ROLE_ADMIN");
                     return roleRepository.save(newRole);
                 });
 

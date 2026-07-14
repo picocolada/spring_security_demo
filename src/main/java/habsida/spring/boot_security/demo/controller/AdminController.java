@@ -1,5 +1,6 @@
 package habsida.spring.boot_security.demo.controller;
 
+import habsida.spring.boot_security.demo.dto.UserDto;
 import habsida.spring.boot_security.demo.model.User;
 import habsida.spring.boot_security.demo.service.UserService;
 import jakarta.validation.Valid;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @Controller
+@RequestMapping("/admin")
 public class AdminController {
     private final UserService userService;
 
@@ -19,7 +21,7 @@ public class AdminController {
     }
 
 
-    @GetMapping("/admin")
+    @GetMapping
     public String adminPage(Authentication authentication, Model model) {
         model.addAttribute("user", authentication.getPrincipal());
         model.addAttribute("users", userService.listUsers());
@@ -57,19 +59,27 @@ public class AdminController {
 
 
         userService.add(user);
-        return "redirect:/users";
+        return "redirect:/admin/users";
     }
 
     @PostMapping("/users/delete")
     public String deleteUser(@RequestParam Long id) {
         userService.delete(id);
-        return "redirect:/users";
+        return "redirect:/admin/users";
     }
 
     @GetMapping("/users/edit")
     public String showEditForm(@RequestParam Long id, Model model) {
         User existingUser = userService.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+
+        UserDto userDto = new UserDto();
+        userDto.setId(existingUser.getId());
+        userDto.setUsername(existingUser.getUsername());
+        userDto.setFirstName(existingUser.getFirstName());
+        userDto.setLastName(existingUser.getLastName());
+        userDto.setEmail(existingUser.getEmail());
+
         model.addAttribute("user", existingUser);
         return "edit-page";
     }
@@ -77,26 +87,37 @@ public class AdminController {
 
     @PostMapping("/users/edit/{id}")
     public String updateUser(@PathVariable Long id,
-                             @Valid @ModelAttribute User user,
+                             @Valid @ModelAttribute("user") UserDto userDto,
                              BindingResult bindingResult,
                              Model model) {
         User existingUser = userService.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        user.setUsername(existingUser.getUsername());
-
-        User userWithSameEmail = userService.findByEmail(user.getEmail());
+        User userWithSameEmail = userService.findByEmail(userDto.getEmail());
         if (userWithSameEmail != null && !userWithSameEmail.getId().equals(id)) {
             bindingResult.rejectValue("email", "duplicate",
-                    "Email " + user.getEmail() + " is already taken by another user");
+                    "Email " + userDto.getEmail() + " is already taken by another user");
         }
         if (bindingResult.hasErrors()) {
-            model.addAttribute("user", user);
+            model.addAttribute("user", userDto);
             return "edit-page";
         }
 
+        User user = new User();
+        user.setId(userDto.getId());
+        user.setUsername(existingUser.getUsername());
+        user.setFirstName(userDto.getFirstName());
+        user.setLastName(userDto.getLastName());
+        user.setEmail(userDto.getEmail());
+
+        if (userDto.getPassword() != null && !userDto.getPassword().isEmpty()) {
+            user.setPassword(userDto.getPassword());
+        } else {
+            user.setPassword(existingUser.getPassword());
+        }
+
         userService.update(id, user);
-        return "redirect:/users";
+        return "redirect:/admin/users";
     }
 
 }

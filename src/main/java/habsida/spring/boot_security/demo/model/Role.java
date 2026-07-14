@@ -2,7 +2,6 @@ package habsida.spring.boot_security.demo.model;
 
 import org.springframework.security.core.GrantedAuthority;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
 
 import java.util.Set;
 

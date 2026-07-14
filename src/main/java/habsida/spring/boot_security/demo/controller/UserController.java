@@ -1,6 +1,7 @@
 package habsida.spring.boot_security.demo.controller;
 
 
+import habsida.spring.boot_security.demo.model.User;
 import habsida.spring.boot_security.demo.service.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -17,11 +18,10 @@ public class UserController {
         this.userService = userService;
     }
 
-    //юзер должен видеть инфо только о себе
-
     @GetMapping("/user")
     public String userPage(Authentication authentication, Model model) {
-        model.addAttribute("user", authentication.getPrincipal());
+        User user = (User) authentication.getPrincipal();
+        model.addAttribute("user", user);
         return "user";
     }
 
