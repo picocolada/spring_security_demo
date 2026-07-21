@@ -92,6 +92,18 @@
   </div>
   <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="error"></span>
 
+  <div class="checkbox-group">
+    <label>Roles:</label>
+    <div th:each="role : ${allRoles}">
+      <input type="checkbox"
+             th:value="${role.id}"
+             th:field="*{roleIds}"
+             class="role-checkbox"/>
+      <span th:text="${role.role}"></span>
+    </div>
+  </div>
+  <span th:if="${#fields.hasErrors('roleIds')}" th:errors="*{roleIds}" class="error"></span>
+
   <div class="form-group">
     <label>New Password:</label>
     <input type="password" th:field="*{password}" placeholder="Leave blank to keep current">

@@ -79,6 +79,7 @@ public class UserServiceImpl implements UserService{
         }
         userRepository.save(existingUser);
     }
+// не кодировать, если пароль пустой, а брать из базы
 
     @Transactional(readOnly = true)
     @Override

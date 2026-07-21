@@ -1,7 +1,9 @@
 package habsida.spring.boot_security.demo.controller;
 
 import habsida.spring.boot_security.demo.dto.UserDto;
+import habsida.spring.boot_security.demo.model.Role;
 import habsida.spring.boot_security.demo.model.User;
+import habsida.spring.boot_security.demo.service.RoleService;
 import habsida.spring.boot_security.demo.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
@@ -10,14 +12,19 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
     private final UserService userService;
+    private final RoleService roleService;
 
-    public AdminController(UserService userService) {
+    public AdminController(UserService userService, RoleService roleService) {
         this.userService = userService;
+        this.roleService = roleService;
     }
 
 
@@ -37,12 +44,14 @@ public class AdminController {
     @GetMapping("/users/add")
     public String showAddForm(Model model) {
         model.addAttribute("user", new User());
+        model.addAttribute("allRoles", roleService.findAll());
         return "addition-page";
     }
 
     @PostMapping("/users/add")
     public String saveUser(@Valid @ModelAttribute User user,
-                           BindingResult bindingResult){
+                           BindingResult bindingResult,
+                           Model model){
         if (userService.existsByEmail(user.getEmail())) {
             bindingResult.rejectValue("email", "error.user",
                     "User with email " + user.getEmail() + " already exists");
@@ -54,9 +63,16 @@ public class AdminController {
         }
 
         if (bindingResult.hasErrors()) {
+            model.addAttribute("allRoles", roleService.findAll());
             return "addition-page";
         }
 
+        if (user.getRoles() == null || user.getRoles().isEmpty()) {
+            Role defaultRole = roleService.findByRole("ROLE_USER");
+            if (defaultRole != null) {
+                user.setRoles(Set.of(defaultRole));
+            }
+        }
 
         userService.add(user);
         return "redirect:/admin/users";
@@ -80,7 +96,14 @@ public class AdminController {
         userDto.setLastName(existingUser.getLastName());
         userDto.setEmail(existingUser.getEmail());
 
-        model.addAttribute("user", existingUser);
+        Set<Long> roleIds = new HashSet<>();
+        for (Role role : existingUser.getRoles()) {
+            roleIds.add(role.getId());
+        }
+        userDto.setRoleIds(roleIds);
+
+        model.addAttribute("allRoles", roleService.findAll());
+        model.addAttribute("user", userDto);
         return "edit-page";
     }
 
@@ -100,6 +123,7 @@ public class AdminController {
         }
         if (bindingResult.hasErrors()) {
             model.addAttribute("user", userDto);
+            model.addAttribute("allRoles", roleService.findAll());
             return "edit-page";
         }
 
@@ -110,10 +134,15 @@ public class AdminController {
         user.setLastName(userDto.getLastName());
         user.setEmail(userDto.getEmail());
 
+        if (userDto.getRoleIds() != null && !userDto.getRoleIds().isEmpty()) {
+            Set<Role> roles = roleService.findAllByIdIn(userDto.getRoleIds());
+            user.setRoles(roles);
+        } else {
+            user.setRoles(existingUser.getRoles());
+        }
+
         if (userDto.getPassword() != null && !userDto.getPassword().isEmpty()) {
             user.setPassword(userDto.getPassword());
-        } else {
-            user.setPassword(existingUser.getPassword());
         }
 
         userService.update(id, user);
